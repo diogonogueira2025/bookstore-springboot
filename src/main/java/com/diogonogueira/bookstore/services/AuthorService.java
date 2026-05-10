@@ -8,6 +8,8 @@ import com.diogonogueira.bookstore.services.exceptions.ResourceNotFoundException
 import org.jspecify.annotations.NonNull;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,8 +24,8 @@ public class AuthorService {
         this.repository = repository;
     }
 
-    public List<Author> findAll() {
-        return repository.findAll();
+    public Page<Author> findAll(Pageable pageable) {
+        return repository.findAll(pageable);
     }
 
     public Author findById(UUID id) {

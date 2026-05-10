@@ -4,6 +4,8 @@ import com.diogonogueira.bookstore.dtos.AuthorRecord;
 import com.diogonogueira.bookstore.entities.Author;
 import com.diogonogueira.bookstore.services.AuthorService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +23,8 @@ public class AuthorResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<Author>> findAll() {
-        return ResponseEntity.status(HttpStatus.OK).body(authorService.findAll());
+    public ResponseEntity<Page<Author>> findAll(Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(authorService.findAll(pageable));
     }
 
     @GetMapping("/{id}")

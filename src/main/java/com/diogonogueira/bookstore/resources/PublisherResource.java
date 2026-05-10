@@ -4,6 +4,8 @@ import com.diogonogueira.bookstore.dtos.PublisherRecord;
 import com.diogonogueira.bookstore.entities.Publisher;
 import com.diogonogueira.bookstore.services.PublisherService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +23,8 @@ public class PublisherResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<Publisher>> findAll() {
-        return ResponseEntity.status(HttpStatus.OK).body(publisherService.findAll());
+    public ResponseEntity<Page<Publisher>> findAll(Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(publisherService.findAll(pageable));
     }
 
     @GetMapping("/{id}")
