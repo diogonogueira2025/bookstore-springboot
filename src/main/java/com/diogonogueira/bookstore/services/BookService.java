@@ -1,6 +1,8 @@
 package com.diogonogueira.bookstore.services;
 
-import com.diogonogueira.bookstore.dtos.BookRecord;
+import com.diogonogueira.bookstore.dtos.book.BookRequest;
+import com.diogonogueira.bookstore.dtos.book.BookResponse;
+import com.diogonogueira.bookstore.entities.Author;
 import com.diogonogueira.bookstore.entities.Book;
 import com.diogonogueira.bookstore.entities.Review;
 import com.diogonogueira.bookstore.repositories.BookRepository;
@@ -12,11 +14,13 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class BookService {
 
     private final BookRepository repository;
@@ -29,47 +33,62 @@ public class BookService {
         this.authorService = authorService;
     }
 
-    public Page<Book> findAll(Pageable pageable) {
-        return repository.findAll(pageable);
+    private BookResponse toResponse(Book book) {
+        return new BookResponse(
+                book.getId(),
+                book.getTitle(),
+                book.getPublisher().getId(),
+                book.getReview() != null ? book.getReview().getComment() : null,
+                book.getAuthors().stream().map(Author::getId).collect(Collectors.toSet()));
     }
 
-    public Book findById(UUID id) {
+    public Book findEntityById(UUID id) {
         return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
-    public Book save(@NonNull BookRecord bookRecord) {
+    public Page<BookResponse> findAll(Pageable pageable) {
+        return repository.findAll(pageable).map(this::toResponse);
+    }
+
+    public BookResponse findById(UUID id) {
+        return toResponse(findEntityById(id));
+    }
+
+    @Transactional
+    public BookResponse save(@NonNull BookRequest bookRequest) {
         Book book = new Book();
-        mapRecordToBook(book, bookRecord);
-
-        return repository.save(book);
+        mapRecordToBook(book, bookRequest);
+        return toResponse(repository.save(book));
     }
 
-    public Book update(UUID id, @NonNull BookRecord bookRecord) {
-        Book book = findById(id);
-
-        mapRecordToBook(book, bookRecord);
-
-        return repository.save(book);
+    @Transactional
+    public BookResponse update(UUID id, @NonNull BookRequest bookRequest) {
+        Book book = findEntityById(id);
+        mapRecordToBook(book, bookRequest);
+        return toResponse(repository.save(book));
     }
 
-    private void mapRecordToBook(Book book, BookRecord bookRecord) {
-        book.setTitle(bookRecord.title());
+    private void mapRecordToBook(Book book, BookRequest bookRequest) {
+        book.setTitle(bookRequest.title());
         book.getAuthors().clear();
-        book.getAuthors().addAll(authorService.findAllById(bookRecord.authorsId()));
-        book.setPublisher(publisherService.findById(bookRecord.publisherId()));
+        book.getAuthors().addAll(authorService.findAllById(bookRequest.authorIds()));
+        book.setPublisher(publisherService.findEntityById(bookRequest.publisherId()));
 
-        String reviewComment = bookRecord.reviewComment();
+        String reviewComment = bookRequest.reviewComment();
 
         if (reviewComment != null && !reviewComment.isBlank()) {
-            Review review = new Review();
+            Review review = book.getReview();
 
-            review.setBook(book);
-            review.setComment(bookRecord.reviewComment());
-
-            book.setReview(review);
+            if (review == null) {
+                review = new Review();
+                review.setBook(book);
+                book.setReview(review);
+            }
+            review.setComment(reviewComment);
         }
     }
 
+    @Transactional
     public void deleteById(UUID id) {
         try {
             repository.deleteById(id);

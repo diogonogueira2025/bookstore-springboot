@@ -1,6 +1,5 @@
 package com.diogonogueira.bookstore.entities;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.io.Serial;
@@ -23,7 +22,6 @@ public class Book implements Serializable {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_publisher", nullable = false)
     private Publisher publisher;
@@ -31,7 +29,6 @@ public class Book implements Serializable {
     @OneToOne(mappedBy = "book", cascade = CascadeType.ALL)
     private Review review;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "tb_book_author", joinColumns = @JoinColumn(name = "id_book"), inverseJoinColumns = @JoinColumn(name = "id_author"))
     private Set<Author> authors = new HashSet<>();

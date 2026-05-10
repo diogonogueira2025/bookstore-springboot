@@ -1,7 +1,7 @@
 package com.diogonogueira.bookstore.resources;
 
-import com.diogonogueira.bookstore.dtos.BookRecord;
-import com.diogonogueira.bookstore.entities.Book;
+import com.diogonogueira.bookstore.dtos.book.BookRequest;
+import com.diogonogueira.bookstore.dtos.book.BookResponse;
 import com.diogonogueira.bookstore.services.BookService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -22,29 +22,28 @@ public class BookResource {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Book>> findAll(Pageable pageable) {
+    public ResponseEntity<Page<BookResponse>> findAll(Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(bookService.findAll(pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Book> findById(@PathVariable UUID id) {
+    public ResponseEntity<BookResponse> findById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(bookService.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Book> save(@RequestBody @Valid BookRecord bookRecord) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(bookService.save(bookRecord));
+    public ResponseEntity<BookResponse> save(@RequestBody @Valid BookRequest bookRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookService.save(bookRequest));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Book> update(@PathVariable UUID id, @RequestBody @Valid BookRecord bookRecord) {
-        return ResponseEntity.status(HttpStatus.OK).body(bookService.update(id, bookRecord));
+    public ResponseEntity<BookResponse> update(@PathVariable UUID id, @RequestBody @Valid BookRequest bookRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(bookService.update(id, bookRequest));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         bookService.deleteById(id);
-
         return ResponseEntity.noContent().build();
     }
 }

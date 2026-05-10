@@ -1,7 +1,7 @@
 package com.diogonogueira.bookstore.resources;
 
-import com.diogonogueira.bookstore.dtos.AuthorRecord;
-import com.diogonogueira.bookstore.entities.Author;
+import com.diogonogueira.bookstore.dtos.author.AuthorRequest;
+import com.diogonogueira.bookstore.dtos.author.AuthorResponse;
 import com.diogonogueira.bookstore.services.AuthorService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -23,23 +22,23 @@ public class AuthorResource {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Author>> findAll(Pageable pageable) {
+    public ResponseEntity<Page<AuthorResponse>> findAll(Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(authorService.findAll(pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Author> findById(@PathVariable UUID id) {
+    public ResponseEntity<AuthorResponse> findById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(authorService.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Author> save(@RequestBody @Valid AuthorRecord authorRecord) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authorService.save(authorRecord));
+    public ResponseEntity<AuthorResponse> save(@RequestBody @Valid AuthorRequest authorRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authorService.save(authorRequest));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Author> update(@PathVariable UUID id, @RequestBody @Valid AuthorRecord authorRecord) {
-        return ResponseEntity.status(HttpStatus.OK).body(authorService.update(id, authorRecord));
+    public ResponseEntity<AuthorResponse> update(@PathVariable UUID id, @RequestBody @Valid AuthorRequest authorRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(authorService.update(id, authorRequest));
     }
 
     @DeleteMapping("/{id}")

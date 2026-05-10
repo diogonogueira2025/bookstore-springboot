@@ -23,7 +23,7 @@ public class Review implements Serializable {
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToOne
-    @JoinColumn(name = "id_book")
+    @JoinColumn(name = "id_book", nullable = false, unique = true)
     private Book book;
 
     public UUID getId() {
