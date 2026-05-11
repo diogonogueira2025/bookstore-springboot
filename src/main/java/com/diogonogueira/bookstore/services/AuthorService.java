@@ -7,8 +7,6 @@ import com.diogonogueira.bookstore.repositories.AuthorRepository;
 import com.diogonogueira.bookstore.services.exceptions.DatabaseException;
 import com.diogonogueira.bookstore.services.exceptions.ResourceNotFoundException;
 import org.jspecify.annotations.NonNull;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -70,12 +68,12 @@ public class AuthorService {
 
     @Transactional
     public void deleteById(UUID id) {
-        try {
-            repository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new ResourceNotFoundException(id);
-        } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException(e.getMessage());
+        Author author = findEntityById(id);
+
+        if (!author.getBooks().isEmpty()) {
+            throw new DatabaseException("Cannot delete author because it has associated books");
         }
+
+        repository.delete(author);
     }
 }

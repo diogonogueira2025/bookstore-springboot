@@ -6,11 +6,8 @@ import com.diogonogueira.bookstore.entities.Author;
 import com.diogonogueira.bookstore.entities.Book;
 import com.diogonogueira.bookstore.entities.Review;
 import com.diogonogueira.bookstore.repositories.BookRepository;
-import com.diogonogueira.bookstore.services.exceptions.DatabaseException;
 import com.diogonogueira.bookstore.services.exceptions.ResourceNotFoundException;
 import org.jspecify.annotations.NonNull;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -90,12 +87,7 @@ public class BookService {
 
     @Transactional
     public void deleteById(UUID id) {
-        try {
-            repository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new ResourceNotFoundException(id);
-        } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException(e.getMessage());
-        }
+        Book book = findEntityById(id);
+        repository.delete(book);
     }
 }
